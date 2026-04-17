@@ -68,12 +68,10 @@ while true; do
 	fi
 done
 }
-#one kinda working part
 new_session ()  {
 
 mkdir -p cube_times_dir && cd cube_times_dir
 
-#num check
 while true; do
 	read -p "Session number: " num
         [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
@@ -86,8 +84,6 @@ if [[ -f "session_$num" ]]; then
 else
 	touch "$file"
 fi
-
-#main part which has solve and time (very confusing)
 while true; do
 
 	read -p "how many solves? " sol_num
@@ -97,10 +93,7 @@ while true; do
 		std_error
 	fi
 done
-#solve nymbers are done
-
 for ((i=1; i<=sol_num; i++)); do
-#	sub_calc #function(work in progess)
 	while true; do
 		read -p "$(ordinal $i) solve time: " time
 		if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
