@@ -27,6 +27,7 @@ ordinal() {
 greet
 #wip
 old_session() {
+mkdir -p cube_times_dir && cd cube_times_dir
     while true; do
         read -p "How many new solves? " sol_num_new
         if [[ "$sol_num_new" =~ ^[0-9]+$ ]]; then
@@ -36,9 +37,9 @@ old_session() {
                     if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                         read -p "Any comments? " com
                         if [[ "$com" != n ]]; then
-                            echo "$time | $com" >> session_"$num"
+                            echo "$time | $com" >> session_"$sol_num_new"
                         else
-                            echo "$time | " >> session_"$num"
+                            echo "$time | " >> session_"$sol_num_new"
                         fi
                         break
                     else
@@ -54,6 +55,7 @@ old_session() {
 }
 #wip
 stats() {
+mkdir -p cube_times_dir && cd cube_times_dir
 while true; do
 	read -p "which session stats? " d_num
 	if [[ -f session_"$d_num" ]]; then
@@ -80,7 +82,7 @@ file="session_$num"
 if [[ -f "session_$num" ]]; then
 		std_error
                 echo "This file already exist, use old option"
-		exit
+		return
 else
 	touch "$file"
 fi
@@ -98,7 +100,7 @@ for ((i=1; i<=sol_num; i++)); do
 		read -p "$(ordinal $i) solve time: " time
 		if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			read -p "Any comments? " com
-			if [[ !  "$com" == n ]]; then
+			if [[ "$com" != n ]]; then
 				echo "$time | $com"  >> session_"$num"
 			else
 				echo "$time | "  >> session_"$num"
@@ -119,7 +121,7 @@ read -p "1- New, 2- Old, 3- Stats, 4- Exit: " choice
          2) old_session ;;
          3) stats ;;
        	 4) echo "Happy cubing!"
-            break
+            exit 0
             ;;
          *)
             std_error
