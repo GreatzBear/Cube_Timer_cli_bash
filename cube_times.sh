@@ -36,17 +36,17 @@ mkdir -p "$dir" && cd "$dir"
 old_session() {
 dir_func
  while true; do
-	read -p "How many new solves? " sol_num_new
-        if [[ "$sol_num_new" =~ ^[0-9]+$ ]]; then
-            for ((i=1; i<=sol_num_new; i++)); do
+	read -p "How many new solves? " sol_num
+        if [[ "$sol_num" =~ ^[0-9]+$ ]]; then
+            for ((i=1; i<=sol_num; i++)); do
                 while true; do
                     read -p "$(ordinal $i) solve time: " time
                     if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                         read -p "Any comments? " com
                         if [[ "$com" != n ]]; then
-                            echo "$time | $com" >> session_"$sol_num_new"
+                            echo "$time | $com" >> session_"$sol_num"
                         else
-                            echo "$time | " >> session_"$sol_num_new"
+                            echo "$time | " >> session_"$sol_num"
                         fi
                         break
                     else
@@ -73,7 +73,7 @@ while true; do
 	else
 		std_error
 		echo "The file doesnt exist"
-		exit 1
+		continue
 	fi
 done
 }
@@ -119,7 +119,9 @@ done
 }
 
 while true; do
+	separator
 	read -p "1- New, 2- Old, 3- Stats, 4- Exit: " choice
+	separator
 	case "$choice" in
 	1) new_session ;;
         2) old_session ;;
