@@ -1,11 +1,15 @@
 #!/bin/bash
 set -euo pipefail
-
+separator() {
+    printf '%0.s-' {1..80}
+    echo
+}
 greet() {
-echo "--------------------------------------------------------------------------------------------------------------------------------------------------------------"
-echo "--------------------------------------------------------------------------------------------------------------------------------------------------------------"
-echo "--------------------------------------------------------------------------------------------------------------------------------------------------------------"
-echo -e "-------------------------------------------------------------------------\e[31mWELCOME\e[0m------------------------------------------------------------------------"
+    separator
+    separator
+    separator
+    echo -e "\e[31mWELCOME\e[0m"
+    separator
 }
 
 std_error() {
@@ -27,10 +31,10 @@ ordinal() {
 greet
 dir=cube_timers_dir
 dir_func() {
-mkdir -p dir && cd dir
+mkdir -p "$dir" && cd "$dir"
 }
 old_session() {
-dir_func()
+dir_func
  while true; do
 	read -p "How many new solves? " sol_num_new
         if [[ "$sol_num_new" =~ ^[0-9]+$ ]]; then
@@ -58,7 +62,7 @@ dir_func()
 }
 #wip
 stats() {
-dir_func()
+dir_func
 while true; do
 	read -p "which session stats? " d_num
 	if [[ -f session_"$d_num" ]]; then
@@ -74,7 +78,7 @@ while true; do
 done
 }
 new_session ()  {
-dir_func()
+dir_func
 while true; do
 	read -p "Session number: " num
         [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
