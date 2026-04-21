@@ -132,7 +132,7 @@ done
 
 while true; do
 	separator
-	read -p "1- New, 2- Old, 3- Stats, 4- Exit: " choice
+	read -p "1- New, 2- Old, 3- Stats, 4- Exit, 5- display: " choice
 	separator
 	case "$choice" in
 	1) new_session ;;
