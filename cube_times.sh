@@ -33,6 +33,18 @@ dir=cube_timers_dir
 dir_func() {
 mkdir -p "$dir" && cd "$dir"
 }
+display() {
+    dir_func
+    if ls session_* 1> /dev/null 2>&1; then
+        separator
+        echo "Available sessions:"
+        separator
+        ls session_*
+        separator
+    else
+        echo "No sessions found"
+    fi
+}
 old_session() {
 dir_func
  while true; do
@@ -127,6 +139,7 @@ while true; do
         2) old_session ;;
         3) stats ;;
        	4) echo "Happy cubing!" && exit 0 ;;
+	5) display ;;
 	*)std_error ;;
    	 esac
 done
