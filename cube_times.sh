@@ -25,11 +25,14 @@ ordinal() {
     fi
 }
 greet
-#wip
+dir=cube_timers_dir
+dir_func() {
+mkdir -p dir && cd dir
+}
 old_session() {
-mkdir -p cube_times_dir && cd cube_times_dir
-    while true; do
-        read -p "How many new solves? " sol_num_new
+dir_func()
+ while true; do
+	read -p "How many new solves? " sol_num_new
         if [[ "$sol_num_new" =~ ^[0-9]+$ ]]; then
             for ((i=1; i<=sol_num_new; i++)); do
                 while true; do
@@ -55,7 +58,7 @@ mkdir -p cube_times_dir && cd cube_times_dir
 }
 #wip
 stats() {
-mkdir -p cube_times_dir && cd cube_times_dir
+dir_func()
 while true; do
 	read -p "which session stats? " d_num
 	if [[ -f session_"$d_num" ]]; then
@@ -71,9 +74,7 @@ while true; do
 done
 }
 new_session ()  {
-
-mkdir -p cube_times_dir && cd cube_times_dir
-
+dir_func()
 while true; do
 	read -p "Session number: " num
         [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
@@ -113,17 +114,13 @@ for ((i=1; i<=sol_num; i++)); do
 done
 }
 
-
-#menu
-read -p "1- New, 2- Old, 3- Stats, 4- Exit: " choice
-    case "$choice" in
-	 1) new_session ;;
-         2) old_session ;;
-         3) stats ;;
-       	 4) echo "Happy cubing!"
-            exit 0
-            ;;
-         *)
-            std_error
-            ;;
-    esac
+while true; do
+	read -p "1- New, 2- Old, 3- Stats, 4- Exit: " choice
+	case "$choice" in
+	1) new_session ;;
+        2) old_session ;;
+        3) stats ;;
+       	4) echo "Happy cubing!" && exit 0 ;;
+	*)std_error ;;
+   	 esac
+done
