@@ -6,8 +6,6 @@ separator() {
 }
 greet() {
     separator
-    separator
-    separator
     echo -e "\e[31mWELCOME\e[0m"
     separator
 }
@@ -45,34 +43,38 @@ display() {
         echo "No sessions found"
     fi
 }
-old_session() {
-dir_func
- while true; do
-	read -p "How many new solves? " sol_num
+session() {
+while true; do
+        read -p "how many solves? " sol_num
         if [[ "$sol_num" =~ ^[0-9]+$ ]]; then
-            for ((i=1; i<=sol_num; i++)); do
-                while true; do
-                    read -p "$(ordinal $i) solve time: " time
-                    if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                        read -p "Any comments? " com
+                break
+        else
+                std_error
+        fi
+done
+
+for ((i=1; i<=sol_num; i++)); do
+        while true; do
+                read -p "$(ordinal $i) solve time: " time
+                if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                        read -p "Any comments? (n for none)  " com
                         if [[ "$com" != n ]]; then
-                            echo "$time | $com" >> session_"$sol_num"
+                                echo "$time | $com"  >> session_"$num"
                         else
-                            echo "$time | " >> session_"$sol_num"
+                                echo "$time | "  >> session_"$num"
                         fi
                         break
-                    else
+                else
                         std_error
-                    fi
-                done
-            done
-            break
-        else
-            std_error
-        fi
-    done
+                fi
+        done
+done
 }
-#wip
+old_session() {
+dir_func
+session
+}
+
 stats() {
 dir_func
 while true; do
@@ -96,38 +98,14 @@ while true; do
         [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
 done
 file="session_$num"
-if [[ -f "session_$num" ]]; then
+if [[ -f "$file" ]]; then
 		std_error
                 echo "This file already exist, use old option"
 		return
 else
 	touch "$file"
 fi
-while true; do
-
-	read -p "how many solves? " sol_num
-	if [[ "$sol_num" =~ ^[0-9]+$ ]]; then
-		break
-	else
-		std_error
-	fi
-done
-for ((i=1; i<=sol_num; i++)); do
-	while true; do
-		read -p "$(ordinal $i) solve time: " time
-		if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-			read -p "Any comments? " com
-			if [[ "$com" != n ]]; then
-				echo "$time | $com"  >> session_"$num"
-			else
-				echo "$time | "  >> session_"$num"
-			fi
-			break
-		else
-			std_error
-		fi
-	done
-done
+session
 }
 
 while true; do
