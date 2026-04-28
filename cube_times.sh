@@ -70,41 +70,37 @@ for ((i=1; i<=sol_num; i++)); do
         done
 done
 }
+file_check() {
+while true; do
+	read -p "Session number: " num
+	[[ "$num" =~ ^[0-9]+$ ]] && break || std_error
+	file="session_$num"
+	if [[ -f "$file" ]]; then
+		break
+	else
+	std_error
+	echo "The file doesnt exist"
+	fi
+done
+}
 old_session() {
 dir_func
+file_check
 session
 }
 
 stats() {
 dir_func
-while true; do
-	read -p "which session stats? " d_num
-	if [[ -f session_"$d_num" ]]; then
-		while IFS="|" read -r time comment; do
-		echo "Time: $time"
-		done < session_"$d_num"
-		break
-	else
-		std_error
-		echo "The file doesnt exist"
-		continue
-	fi
-done
+file_check
+while IFS="|" read -r time comment; do
+	echo "Time: $time"
+        done < session_"$d_num"
+break
 }
 new_session ()  {
 dir_func
-while true; do
-	read -p "Session number: " num
-        [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
-done
-file="session_$num"
-if [[ -f "$file" ]]; then
-		std_error
-                echo "This file already exist, use old option"
-		return
-else
-	touch "$file"
-fi
+file_check
+touch "$file"
 session
 }
 
