@@ -94,12 +94,20 @@ dir_func
 file_check
 while IFS="|" read -r time comment; do
 	echo "Time: $time"
-        done < session_"$d_num"
-break
+        done < "$file"
 }
-new_session ()  {
+new_session() {
 dir_func
-file_check
+while true; do
+        read -p "Session number: " num
+        [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
+done
+file="session_$num"
+if [[ -f "$file" ]]; then
+	std_error
+        echo "This file already exists"
+        return
+    fi
 touch "$file"
 session
 }
