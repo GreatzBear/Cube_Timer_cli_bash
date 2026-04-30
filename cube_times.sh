@@ -39,10 +39,7 @@ display() {
         separator
         ls session_*
         separator
-	echo "pick the one you want"
-	sleep 3
-	echo "bye(exiting)"
-	exit 0
+	return
     else
         echo "No sessions found"
     fi
@@ -97,8 +94,18 @@ stats() {
 dir_func
 file_check
 while IFS="|" read -r time comment; do
-	echo "Time: $time"
-        done < "$file"
+	time=$(echo "$time" | xargs)
+        echo "Time: $time | Comment: $comment"
+        total=$(echo "$total + $time" | bc)
+        ((count++))
+        if (( $(echo "$time < $best" | bc -l) )); then
+            best=$time
+        fi
+    done < "$file"
+separator
+echo "Solves: $count"
+echo "Best: $best"
+echo "Average: $(echo "$total / $count" | bc -l)"
 }
 new_session() {
 dir_func
