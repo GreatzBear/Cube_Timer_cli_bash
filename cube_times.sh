@@ -39,6 +39,10 @@ display() {
         separator
         ls session_*
         separator
+	echo "pick the one you want"
+	sleep 3
+	echo "bye(exiting)"
+	exit 0
     else
         echo "No sessions found"
     fi
