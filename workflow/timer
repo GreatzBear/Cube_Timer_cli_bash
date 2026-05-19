@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+echo "Press SPACE to start"
+read -rsn1
+
+start=$(date +%s.%N)
+echo "Timing... press SPACE to stop"
+
+read -rsn1 key
+
+end=$(date +%s.%N)
+elapsed=$(echo "$end - $start" | bc -l)
+
+printf "Time: %.2f\n" "$elapsed"

@@ -56,18 +56,38 @@ done
 
 for ((i=1; i<=sol_num; i++)); do
         while true; do
-                read -p "$(ordinal $i) solve time: " time
-                if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                        read -p "Any comments? (n for none)  " com
-                        if [[ "$com" != n ]]; then
-                                echo "$time | $com"  >> session_"$num"
-                        else
-                                echo "$time | "  >> session_"$num"
-                        fi
-                        break
-                else
-                        std_error
-                fi
+		read -p "manuel or timer mode (m|t)" mode
+		if [[ "$mode" == 't' ]]; then
+                	echo "Press any key to start"
+                	read -rsn1 key
+
+			start=$(date +%s.%N)
+        	        echo "Timing... press any key to stop"
+
+	                read -rsn1 key
+
+        	        end=$(date +%s.%N)
+	                elapsed=$(echo "$end - $start" | bc -l)
+
+                	time=$(printf "%.2f" "$elapsed")
+                	echo "$(ordinal $i) solve time: $time"
+
+		elif [[ "$mode" == 't' ]]; then
+                	read -p "$(ordinal $i) solve time: " time
+                	if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                        	read -p "Any comments? (n for none)  " com
+                        		if [[ "$com" != n ]]; then
+                                		echo "$time | $com"  >> session_"$num"
+                        		else
+                                		echo "$time | "  >> session_"$num"
+                        		fi
+                        		break
+                	else
+                        	std_error
+                	fi
+		else
+			std_error
+		fi
         done
 done
 }
@@ -75,14 +95,14 @@ file_check() {
 while true; do
 	read -p "Session number: " num
 	if [[ "$num" =~ ^[0-9]+$ ]]; then
-		continue  || std_error
+		std_error
+		continue
 	fi
 	file="session_$num"
 	if [[ -f "$file" ]]; then
 		break
 	else
-	std_error
-	echo "The file doesnt exist"
+		echo "The file doesnt exist"
 	fi
 done
 }
@@ -113,7 +133,7 @@ echo "Best: $best"
 if (( count == 0 )); then
 	std_error
 else
-	echo "Average: $(echo "$total / $count" | bc -l)"
+	echo "Average: $(echo "scale=2; $total / $count" | bc -l)"
 fi
 }
 new_session() {
