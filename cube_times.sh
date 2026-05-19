@@ -74,7 +74,9 @@ done
 file_check() {
 while true; do
 	read -p "Session number: " num
-	[[ "$num" =~ ^[0-9]+$ ]] && break || std_error
+	if [[ "$num" =~ ^[0-9]+$ ]]; then
+		continue  || std_error
+	fi
 	file="session_$num"
 	if [[ -f "$file" ]]; then
 		break
@@ -93,6 +95,9 @@ session
 stats() {
 dir_func
 file_check
+total=0
+count=0
+best=999999
 while IFS="|" read -r time comment; do
 	time=$(echo "$time" | xargs)
         echo "Time: $time | Comment: $comment"
@@ -105,7 +110,11 @@ while IFS="|" read -r time comment; do
 separator
 echo "Solves: $count"
 echo "Best: $best"
-echo "Average: $(echo "$total / $count" | bc -l)"
+if (( count == 0 )); then
+	std_error
+else
+	echo "Average: $(echo "$total / $count" | bc -l)"
+fi
 }
 new_session() {
 dir_func
