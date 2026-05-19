@@ -57,7 +57,7 @@ done
 for ((i=1; i<=sol_num; i++)); do
         while true; do
 		read -p "manuel or timer mode (m|t)" mode
-		if [[ "$mode" == 't' ]]; then
+		if [[ "$mode" == t ]]; then
                 	echo "Press any key to start"
                 	read -rsn1 key
 
@@ -72,7 +72,7 @@ for ((i=1; i<=sol_num; i++)); do
                 	time=$(printf "%.2f" "$elapsed")
                 	echo "$(ordinal $i) solve time: $time"
 
-		elif [[ "$mode" == 't' ]]; then
+		elif [[ "$mode" == m ]]; then
                 	read -p "$(ordinal $i) solve time: " time
                 	if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                         	read -p "Any comments? (n for none)  " com
