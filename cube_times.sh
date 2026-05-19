@@ -27,7 +27,7 @@ ordinal() {
     fi
 }
 greet
-dir=cube_timers_dir
+dir="$HOME/cube_timers_dir"
 dir_func() {
 mkdir -p "$dir" && cd "$dir"
 }
@@ -43,6 +43,16 @@ display() {
     else
         echo "No sessions found"
     fi
+}
+comment_time() {
+read -p "Any comments? (n for none)  " com
+if [[ "$com" != n ]]; then
+	echo "$time | $com" >> session_"$num"
+else
+        echo "$time | " >> session_"$num"
+fi
+break
+
 }
 session() {
 while true; do
@@ -71,17 +81,11 @@ for ((i=1; i<=sol_num; i++)); do
 
                 	time=$(printf "%.2f" "$elapsed")
                 	echo "$(ordinal $i) solve time: $time"
-
+			comment_time
 		elif [[ "$mode" == m ]]; then
                 	read -p "$(ordinal $i) solve time: " time
                 	if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                        	read -p "Any comments? (n for none)  " com
-                        		if [[ "$com" != n ]]; then
-                                		echo "$time | $com"  >> session_"$num"
-                        		else
-                                		echo "$time | "  >> session_"$num"
-                        		fi
-                        		break
+				comment_time
                 	else
                         	std_error
                 	fi
@@ -94,7 +98,7 @@ done
 file_check() {
 while true; do
 	read -p "Session number: " num
-	if [[ "$num" =~ ^[0-9]+$ ]]; then
+	if [[ ! "$num" =~ ^[0-9]+$ ]]; then
 		std_error
 		continue
 	fi
