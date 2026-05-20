@@ -1,0 +1,16 @@
+import random
+
+moves = ["U", "D", "L", "R", "F", "B"]
+mods = ["", "'", "2"]
+
+scramble = []
+last = ""
+
+for _ in range(20):
+    move = random.choice(moves)
+    while move == last:
+        move = random.choice(moves)
+    last = move
+    scramble.append(move + random.choice(mods))
+
+print(" ".join(scramble))

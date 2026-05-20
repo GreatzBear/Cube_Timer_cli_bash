@@ -71,16 +71,17 @@ for ((i=1; i<=sol_num; i++)); do
 
 			start=$(date +%s.%N)
         	        echo "Timing... press any key to stop"
+			while true; do
+		                read -rsn1 key
 
-	                read -rsn1 key
+        		        end=$(date +%s.%N)
+	        	        elapsed=$(echo "$end - $start" | bc -l)
 
-        	        end=$(date +%s.%N)
-	                elapsed=$(echo "$end - $start" | bc -l)
-
-                	time=$(printf "%.2f" "$elapsed")
-                	echo "$(ordinal $i) solve time: $time"
-			comment_time
-			break
+	                	time=$(printf "%.2f" "$elapsed")
+        	        	echo "$(ordinal $i) solve time: $time"
+				comment_time
+			done
+		break
 		elif [[ "$mode" == "m" ]]; then
                 	read -p "$(ordinal $i) solve time: " time
                 	if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
