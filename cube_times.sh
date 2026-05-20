@@ -52,6 +52,34 @@ else
         echo "$time | " >> session_"$num"
 fi
 }
+timer_mode() {
+    echo "Press any key to start"
+    read -rsn1
+
+    start=$(date +%s.%N)
+
+    echo "Timing... press any key to stop"
+    read -rsn1
+
+    end=$(date +%s.%N)
+
+    elapsed=$(echo "$end - $start" | bc -l)
+    time=$(printf "%.2f" "$elapsed")
+
+    echo "$(ordinal "$i") solve time: $time"
+}
+manual_mode() {
+    while true; do
+        read -rp "$(ordinal "$i") solve time: " time
+
+        if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "$time"
+            return
+        fi
+
+        std_error
+    done
+}
 session() {
 while true; do
         read -p "how many solves? " sol_num
@@ -66,30 +94,13 @@ for ((i=1; i<=sol_num; i++)); do
         while true; do
 		read -p "manual or timer mode (m|t)" mode
 		if [[ "$mode" == "t" ]]; then
-                	echo "Press any key to start"
-                	read -rsn1 key
-
-			start=$(date +%s.%N)
-        	        echo "Timing... press any key to stop"
-			while true; do
-		                read -rsn1 key
-
-        		        end=$(date +%s.%N)
-	        	        elapsed=$(echo "$end - $start" | bc -l)
-
-	                	time=$(printf "%.2f" "$elapsed")
-        	        	echo "$(ordinal $i) solve time: $time"
-				comment_time
-			done
-		break
+			timer_mode
+			comment_time
+			break
 		elif [[ "$mode" == "m" ]]; then
-                	read -p "$(ordinal $i) solve time: " time
-                	if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-				comment_time
-                		break
-			else
-                        	std_error
-                	fi
+                	time=$(manual_mode)
+			comment_time "$time"
+			break
 		else
 			std_error
 		fi
