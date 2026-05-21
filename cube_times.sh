@@ -47,13 +47,16 @@ read_number() {
     done
 }
 display() {
-    if ls session_* 1> /dev/null 2>&1; then
+    shopt -s nullglob
+    local sessions=(session_*)
+    shopt -u nullglob
+
+    if (( ${#sessions[@]} )); then
         separator
         echo "Available sessions:"
         separator
-        ls session_*
+        printf '%s\n' "${sessions[@]}"
         separator
-	return
     else
         echo "No sessions found"
     fi
@@ -69,6 +72,10 @@ comment_time() {
     printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 timer_mode() {
+    local start
+    local end
+    local elapsed
+
     echo "Press any key to start"
     read -rsn1
 
@@ -80,19 +87,17 @@ timer_mode() {
     end=$(date +%s.%N)
 
     elapsed=$(echo "$end - $start" | bc -l)
-    printf '%.2f\n' "$elapsed"
 
-    echo "$(ordinal "$i") solve time: $time"
+    printf '%.2f\n' "$elapsed"
 }
 manual_mode() {
-    while true; do
-        read -rp "$(ordinal "$i") solve time: " time
-
+local time
+while true; do
+	read -rp "$(ordinal "$i") solve time: " time
         if [[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
             echo "$time"
             return
         fi
-
         std_error
     done
 }
@@ -103,7 +108,8 @@ for ((i=1; i<=sol_num; i++)); do
 		read -p "manual or timer mode (m|t)" mode
 		if [[ "$mode" == "t" ]]; then
 			time=$(timer_mode)
-			comment_time
+			echo "$(ordinal "$i") solve time: $time"
+			comment_time "$time"
 			break
 		elif [[ "$mode" == "m" ]]; then
                 	time=$(manual_mode)
@@ -116,14 +122,13 @@ for ((i=1; i<=sol_num; i++)); do
 done
 }
 file_check() {
-num=$(read_number "which session")
-file="session_$num"
-if [[ -f "$file" ]]; then
-	return
-else
-	echo "The file doesnt exist"
-fi
+while true; do
+	num=$(read_number "which session")
+	file="session_$num"
+	[[ -f "$file" ]] && return
+        echo "File does not exist"
 
+done
 }
 old_session() {
 file_check
