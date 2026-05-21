@@ -31,6 +31,21 @@ dir="$HOME/cube_timers_dir"
 dir_func() {
 mkdir -p "$dir" && cd "$dir"
 }
+read_number() {
+    local prompt=$1
+    local value
+
+    while true; do
+        read -rp "$prompt" value
+
+        [[ $value =~ ^[0-9]+$ ]] && {
+            printf '%s\n' "$value"
+            return
+        }
+
+        std_error
+    done
+}
 display() {
     dir_func
     if ls session_* 1> /dev/null 2>&1; then
@@ -81,15 +96,7 @@ manual_mode() {
     done
 }
 session() {
-while true; do
-        read -p "how many solves? " sol_num
-        if [[ "$sol_num" =~ ^[0-9]+$ ]]; then
-                break
-        else
-                std_error
-        fi
-done
-
+sol_num=$(read_number "How many solves: ")
 for ((i=1; i<=sol_num; i++)); do
         while true; do
 		read -p "manual or timer mode (m|t)" mode
@@ -108,19 +115,14 @@ for ((i=1; i<=sol_num; i++)); do
 done
 }
 file_check() {
-while true; do
-	read -p "Session number: " num
-	if [[ ! "$num" =~ ^[0-9]+$ ]]; then
-		std_error
-		continue
-	fi
-	file="session_$num"
-	if [[ -f "$file" ]]; then
-		break
-	else
-		echo "The file doesnt exist"
-	fi
-done
+num=$(read_number "which session")
+file="session_$num"
+if [[ -f "$file" ]]; then
+break
+else
+	echo "The file doesnt exist"
+fi
+
 }
 old_session() {
 dir_func
@@ -133,7 +135,7 @@ dir_func
 file_check
 total=0
 count=0
-best=999999
+best=""
 while IFS="|" read -r time comment; do
 	time=$(echo "$time" | xargs)
         echo "Time: $time | Comment: $comment"
@@ -154,10 +156,7 @@ fi
 }
 new_session() {
 dir_func
-while true; do
-        read -p "Session number: " num
-        [[ "$num" =~ ^[0-9]+$ ]] && break || std_error
-done
+sol_num=$(read_number "which session num")
 file="session_$num"
 if [[ -f "$file" ]]; then
 	std_error
