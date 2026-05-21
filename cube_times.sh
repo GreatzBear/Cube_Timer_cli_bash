@@ -11,7 +11,7 @@ greet() {
 }
 
 std_error() {
-echo "Invalid input"
+echo "Invalid input" >&2
 }
 ordinal() {
     local n=$1
