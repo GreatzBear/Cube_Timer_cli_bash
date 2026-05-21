@@ -28,9 +28,9 @@ ordinal() {
 }
 greet
 dir="$HOME/cube_timers_dir"
-dir_func() {
-mkdir -p "$dir" && cd "$dir"
-}
+mkdir -p "$dir"
+cd "$dir" || exit 1
+
 read_number() {
     local prompt=$1
     local value
@@ -47,7 +47,6 @@ read_number() {
     done
 }
 display() {
-    dir_func
     if ls session_* 1> /dev/null 2>&1; then
         separator
         echo "Available sessions:"
@@ -60,12 +59,14 @@ display() {
     fi
 }
 comment_time() {
-read -p "Any comments? (n for none)  " com
-if [[ "$com" != "n" ]]; then
-	echo "$time | $com" >> session_"$num"
-else
-        echo "$time | " >> session_"$num"
-fi
+    local solve_time=$1
+    local com
+
+    read -rp "Any comments? (n for none): " com
+
+    [[ $com == "n" ]] && com=""
+
+    printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 timer_mode() {
     echo "Press any key to start"
@@ -79,7 +80,7 @@ timer_mode() {
     end=$(date +%s.%N)
 
     elapsed=$(echo "$end - $start" | bc -l)
-    time=$(printf "%.2f" "$elapsed")
+    printf '%.2f\n' "$elapsed"
 
     echo "$(ordinal "$i") solve time: $time"
 }
@@ -101,7 +102,7 @@ for ((i=1; i<=sol_num; i++)); do
         while true; do
 		read -p "manual or timer mode (m|t)" mode
 		if [[ "$mode" == "t" ]]; then
-			timer_mode
+			time=$(timer_mode)
 			comment_time
 			break
 		elif [[ "$mode" == "m" ]]; then
@@ -118,24 +119,23 @@ file_check() {
 num=$(read_number "which session")
 file="session_$num"
 if [[ -f "$file" ]]; then
-break
+	return
 else
 	echo "The file doesnt exist"
 fi
 
 }
 old_session() {
-dir_func
 file_check
 session
 }
 
 stats() {
-dir_func
+
 file_check
 total=0
 count=0
-best=""
+best=999999
 while IFS="|" read -r time comment; do
 	time=$(echo "$time" | xargs)
         echo "Time: $time | Comment: $comment"
@@ -155,8 +155,7 @@ else
 fi
 }
 new_session() {
-dir_func
-sol_num=$(read_number "which session num")
+num=$(read_number "which session num")
 file="session_$num"
 if [[ -f "$file" ]]; then
 	std_error
