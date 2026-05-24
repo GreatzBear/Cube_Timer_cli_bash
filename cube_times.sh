@@ -76,6 +76,7 @@ comment_time() {
 
     printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
+
 timer_mode() {
 echo "Press any key to start" >&2
 read -rsn1
@@ -108,76 +109,81 @@ while true; do
         std_error
     done
 }
+
 session() {
 sol_num=$(read_number "How many solves: ")
+(( sol_num == 0 )) && return
 for ((i=1; i<=sol_num; i++)); do
         while true; do
-		read -rp "manual or timer mode (m|t)" mode
-		if [[ "$mode" == "t" ]]; then
-			time=$(timer_mode)
-			echo "$(ordinal "$i") solve time: $time"
-			comment_time "$time"
-			break
-		elif [[ "$mode" == "m" ]]; then
-                	time=$(manual_mode "$i")
-			comment_time "$time"
-			break
-		else
-			std_error
-		fi
+		read -rp "manual or timer mode or quit (m|t|q): " mode
+		case "$mode" in
+		m|M)   time=$(manual_mode "$i")
+                        comment_time "$time"
+                        break ;;
+		t|T)   time=$(timer_mode)
+                        echo "$(ordinal "$i") solve time: $time"
+                        comment_time "$time"
+                        break ;;
+		q|Q) return ;;
+		*) std_error && echo "usage (m|t|q) ;;
+		esac
         done
 done
 }
+
 file_check() {
 while true; do
-	num=$(read_number "which session")
-	file="session_$num"
+	num=$(read_number "Which session: ")
+	local file="session$num"
 	[[ -f "$file" ]] && return
         echo "File does not exist"
-
 done
 }
 
 old_session() {
-file_check
+file=$(file_check)
 session
 }
 
 stats() {
-
-file_check
+file=$(file_check)
 total=0
 count=0
-best=999999
+best=""
+
 while IFS="|" read -r time comment; do
-	time=$(echo "$time" | xargs)
+	time=$(xargs <<< "$time")
+	[[ -z "$time" ]] && continue
         echo "Time: $time | Comment: $comment"
         total=$(bc <<< "$total + $time")
         ((count++))
-        if (( $(echo "$time < $best" | bc -l) )); then
+        if (( $(echo "$time < $best" | bc -l) )) || [[ -z "$best" ]]; then
             best=$time
         fi
-    done < "$file"
+done < "$file"
+
 separator
 echo "Solves: $count"
 echo "Best: $best"
+
 if (( count == 0 )); then
 	std_error
 else
 	echo "Average: $(echo "scale=2; $total / $count" | bc -l)"
 fi
 }
+
 new_session() {
-num=$(read_number "which session num")
+num=$(read_number "Which session num: ")
 file="session_$num"
+
 if [[ -f "$file" ]]; then
 	std_error
         echo "This file already exists, use old session"
         return
 fi
-file="session_$num"
+
 touch "$file"
-export file
 session
 }
 
