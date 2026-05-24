@@ -50,18 +50,6 @@ read_number() {
     done
 }
 
-read_time(){
-local prompt=$1
-local value
-while true; do
-	read -rp "$prompt" value
-        if [[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "$time"
-            return
-        fi
-        std_error
-}
-
 display() {
     shopt -s nullglob
     local sessions=(session_*)
@@ -89,23 +77,20 @@ comment_time() {
     printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 timer_mode() {
-local start
-local end
-local elapsed
 
 echo "Press any key to start"
 read -rsn1
-start=$(date +%s.%N)
+local start=$(date +%s.%N)
 
 echo "Timing... press any key to stop"
 read -rsn1
-end=$(date +%s.%N)
-
+local end=$(date +%s.%N)
 elapsed=$(echo "$end - $start" | bc -l)
 printf '%.2f\n' "$elapsed"
 }
 
 manual_mode() {
+local i=$1
 local time
 while true; do
 	read -rp "$(ordinal "$i") solve time: " time
@@ -160,7 +145,7 @@ best=999999
 while IFS="|" read -r time comment; do
 	time=$(echo "$time" | xargs)
         echo "Time: $time | Comment: $comment"
-        total=$(echo "$total + $time" | bc)
+        total=$(bc <<< "$total + $time")
         ((count++))
         if (( $(echo "$time < $best" | bc -l) )); then
             best=$time
@@ -183,20 +168,26 @@ if [[ -f "$file" ]]; then
         echo "This file already exists, use old session"
         return
 fi
+file="session_$num"
 touch "$file"
+export file
 session
 }
 
-while true; do
-	separator
-	read -rp "1- New, 2- Old, 3- Stats, 4- Exit, 5- display: " choice
-	separator
-	case "$choice" in
-	1) new_session ;;
-        2) old_session ;;
-        3) stats ;;
-       	4) echo "Happy cubing!" && exit 0 ;;
-	5) display ;;
-	*)std_error ;;
-   	 esac
-done
+main() {
+    case "${1:-}" in
+        new) new_session ;;
+        old) old_session ;;
+        stats) stats ;;
+        list|display) display ;;
+        "")
+            echo "Usage: cube {new|old|stats|list}"
+            ;;
+        *)
+            std_error
+            echo "Unknown command: $1"
+            ;;
+    esac
+}
+
+main "$@"
