@@ -4,6 +4,7 @@ separator() {
     printf '%0.s-' {1..80}
     echo
 }
+
 greet() {
     separator
     echo -e "\e[31mWELCOME\e[0m"
@@ -13,6 +14,7 @@ greet() {
 std_error() {
 echo "Invalid input" >&2
 }
+
 ordinal() {
     local n=$1
     if (( n % 100 >= 11 && n % 100 <= 13 )); then
@@ -26,6 +28,7 @@ ordinal() {
         esac
     fi
 }
+
 greet
 dir="$HOME/cube_timers_dir"
 mkdir -p "$dir"
@@ -46,6 +49,19 @@ read_number() {
         std_error
     done
 }
+
+read_time(){
+local prompt=$1
+local value
+while true; do
+	read -rp "$prompt" value
+        if [[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "$time"
+            return
+        fi
+        std_error
+}
+
 display() {
     shopt -s nullglob
     local sessions=(session_*)
@@ -61,6 +77,7 @@ display() {
         echo "No sessions found"
     fi
 }
+
 comment_time() {
     local solve_time=$1
     local com
@@ -72,24 +89,22 @@ comment_time() {
     printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 timer_mode() {
-    local start
-    local end
-    local elapsed
+local start
+local end
+local elapsed
 
-    echo "Press any key to start"
-    read -rsn1
+echo "Press any key to start"
+read -rsn1
+start=$(date +%s.%N)
 
-    start=$(date +%s.%N)
+echo "Timing... press any key to stop"
+read -rsn1
+end=$(date +%s.%N)
 
-    echo "Timing... press any key to stop"
-    read -rsn1
-
-    end=$(date +%s.%N)
-
-    elapsed=$(echo "$end - $start" | bc -l)
-
-    printf '%.2f\n' "$elapsed"
+elapsed=$(echo "$end - $start" | bc -l)
+printf '%.2f\n' "$elapsed"
 }
+
 manual_mode() {
 local time
 while true; do
@@ -105,7 +120,7 @@ session() {
 sol_num=$(read_number "How many solves: ")
 for ((i=1; i<=sol_num; i++)); do
         while true; do
-		read -p "manual or timer mode (m|t)" mode
+		read -rp "manual or timer mode (m|t)" mode
 		if [[ "$mode" == "t" ]]; then
 			time=$(timer_mode)
 			echo "$(ordinal "$i") solve time: $time"
@@ -130,6 +145,7 @@ while true; do
 
 done
 }
+
 old_session() {
 file_check
 session
@@ -164,16 +180,16 @@ num=$(read_number "which session num")
 file="session_$num"
 if [[ -f "$file" ]]; then
 	std_error
-        echo "This file already exists"
+        echo "This file already exists, use old session"
         return
-    fi
+fi
 touch "$file"
 session
 }
 
 while true; do
 	separator
-	read -p "1- New, 2- Old, 3- Stats, 4- Exit, 5- display: " choice
+	read -rp "1- New, 2- Old, 3- Stats, 4- Exit, 5- display: " choice
 	separator
 	case "$choice" in
 	1) new_session ;;
