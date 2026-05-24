@@ -125,7 +125,7 @@ for ((i=1; i<=sol_num; i++)); do
                         comment_time "$time"
                         break ;;
 		q|Q) return ;;
-		*) std_error && echo "usage (m|t|q) ;;
+		*) std_error && echo "usage (m|t|q)" ;;
 		esac
         done
 done
@@ -135,7 +135,7 @@ file_check() {
 while true; do
 	num=$(read_number "Which session: ")
 	local file="session$num"
-	[[ -f "$file" ]] && return
+	[[ -f "$file" ]]  && { echo "$file"; return; }
         echo "File does not exist"
 done
 }
