@@ -77,17 +77,24 @@ comment_time() {
     printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 timer_mode() {
-
-echo "Press any key to start"
+echo "Press any key to start" >&2
 read -rsn1
-local start=$(date +%s.%N)
 
-echo "Timing... press any key to stop"
+local start
+start=$(date +%s.%N)
+
+echo "Timing... press any key to stop" >&2
 read -rsn1
-local end=$(date +%s.%N)
+
+local end
+end=$(date +%s.%N)
+
+local elapsed
 elapsed=$(echo "$end - $start" | bc -l)
-printf '%.2f\n' "$elapsed"
+
+printf "%.2f\n" "$elapsed"
 }
+
 
 manual_mode() {
 local i=$1
