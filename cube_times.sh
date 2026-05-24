@@ -119,7 +119,7 @@ for ((i=1; i<=sol_num; i++)); do
 			comment_time "$time"
 			break
 		elif [[ "$mode" == "m" ]]; then
-                	time=$(manual_mode)
+                	time=$(manual_mode "$i")
 			comment_time "$time"
 			break
 		else
