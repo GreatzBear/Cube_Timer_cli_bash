@@ -134,7 +134,7 @@ done
 file_check() {
 while true; do
 	num=$(read_number "Which session: ")
-	local file="session$num"
+	local file="session_$num"
 	[[ -f "$file" ]]  && { echo "$file"; return; }
         echo "File does not exist"
 done
@@ -157,7 +157,7 @@ while IFS="|" read -r time comment; do
         echo "Time: $time | Comment: $comment"
         total=$(bc <<< "$total + $time")
         ((count++))
-        if (( $(echo "$time < $best" | bc -l) )) || [[ -z "$best" ]]; then
+        if [[ -z "$best" ]] || (( $(echo "$time < $best" | bc -l) )); then
             best=$time
         fi
 done < "$file"
