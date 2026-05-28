@@ -67,14 +67,14 @@ display() {
 }
 
 comment_time() {
-    local solve_time=$1
-    local com
+local solve_time=$1
+local com
+local file=$2
 
-    read -rp "Any comments? (n for none): " com
+read -rp "Any comments? (n for none): " com
+[[ $com == "n" ]] && com=""
 
-    [[ $com == "n" ]] && com=""
-
-    printf '%s | %s\n' "$solve_time" "$com" >> "$file"
+printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 
 timer_mode() {
@@ -111,6 +111,7 @@ while true; do
 }
 
 session() {
+local file=$1
 sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
 for ((i=1; i<=sol_num; i++)); do
@@ -118,11 +119,11 @@ for ((i=1; i<=sol_num; i++)); do
 		read -rp "manual or timer mode or quit (m|t|q): " mode
 		case "$mode" in
 		m|M)   time=$(manual_mode "$i")
-                        comment_time "$time"
+                        comment_time "$time" "$file"
                         break ;;
 		t|T)   time=$(timer_mode)
                         echo "$(ordinal "$i") solve time: $time"
-                        comment_time "$time"
+                        comment_time "$time" "$file"
                         break ;;
 		q|Q) return ;;
 		*) std_error && echo "usage (m|t|q)" ;;
@@ -141,8 +142,9 @@ done
 }
 
 old_session() {
+local file
 file=$(file_check)
-session
+session "$file"
 }
 
 stats() {
@@ -151,9 +153,10 @@ total=0
 count=0
 best=""
 
-while IFS="|" read -r time comment; do
-	time=$(xargs <<< "$time")
+while IFS="|" read -r time comment || [[ -n $time ]]; do
+	time=${time//[[:space:]]/}
 	[[ -z "$time" ]] && continue
+	[[ "$time" =~ ^[0-9]+(\.[0-9]+)?$ ]] || continue
         echo "Time: $time | Comment: $comment"
         total=$(bc <<< "$total + $time")
         ((count++))
@@ -174,8 +177,8 @@ fi
 }
 
 new_session() {
-num=$(read_number "Which session num: ")
-file="session_$num"
+local num=$(read_number "Which session num: ")
+local file="session_$num"
 
 if [[ -f "$file" ]]; then
 	std_error
@@ -184,7 +187,7 @@ if [[ -f "$file" ]]; then
 fi
 
 touch "$file"
-session
+session "$file"
 }
 
 main() {
