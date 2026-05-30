@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import random
 
 moves = ["U", "D", "L", "R", "F", "B"]
@@ -12,5 +13,5 @@ for _ in range(20):
         move = random.choice(moves)
     last = move
     scramble.append(move + random.choice(mods))
-
+print("scramble: ")
 print(" ".join(scramble))

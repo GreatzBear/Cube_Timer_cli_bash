@@ -110,12 +110,26 @@ while true; do
     done
 }
 
+scrambles() {
+	local moves=(U D L R F B)
+        local movers=("" "'" "2")
+
+        for ((i=0;i<20;i++)); do
+		printf "%s%s " \
+            	"${moves[RANDOM % ${#moves[@]}]}" \
+ 	        "${movers[RANDOM % ${#movers[@]}]}"
+    	done
+
+        echo
+}
+
 session() {
 local file=$1
 sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
 for ((i=1; i<=sol_num; i++)); do
         while true; do
+		scrambles
 		read -rp "manual or timer mode or quit (m|t|q): " mode
 		case "$mode" in
 		m|M)   time=$(manual_mode "$i")
@@ -161,7 +175,8 @@ while IFS="|" read -r time comment || [[ -n $time ]]; do
         total=$(bc <<< "$total + $time")
         ((count++))
         if [[ -z "$best" ]] || (( $(echo "$time < $best" | bc -l) )); then
-            best=$time
+        	best=$time
+		echo "New PB!!!"
         fi
 done < "$file"
 
@@ -207,3 +222,5 @@ main() {
 }
 
 main "$@"
+scramble=$(python3 scramble.py)
+echo "$scramble"
