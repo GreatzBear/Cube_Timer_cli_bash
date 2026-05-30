@@ -113,7 +113,7 @@ while true; do
 scrambles() {
 	local moves=(U D L R F B)
         local movers=("" "'" "2")
-
+	local i
         for ((i=0;i<20;i++)); do
 		printf "%s%s " \
             	"${moves[RANDOM % ${#moves[@]}]}" \
@@ -222,5 +222,4 @@ main() {
 }
 
 main "$@"
-scramble=$(python3 scramble.py)
-echo "$scramble"
+
