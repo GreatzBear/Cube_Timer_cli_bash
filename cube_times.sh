@@ -7,12 +7,18 @@ separator() {
 
 greet() {
     separator
-    echo -e "\e[31mWELCOME\e[0m"
+    printf '\e[31mWELCOME\e[0m\n'
     separator
 }
 
 std_error() {
 echo "Invalid input" >&2
+}
+
+command -v bc >/dev/null ||
+{
+    echo "bc required" >&2
+    exit 1
 }
 
 ordinal() {
@@ -125,8 +131,9 @@ scrambles() {
 
 session() {
 local file=$1
-sol_num=$(read_number "How many solves: ")
+local sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
+local i
 for ((i=1; i<=sol_num; i++)); do
         while true; do
 		scrambles
@@ -207,10 +214,10 @@ session "$file"
 
 main() {
     case "${1:-}" in
-        new) new_session ;;
-        old) old_session ;;
-        stats) stats ;;
-        list|display) display ;;
+        new|n) new_session ;;
+        old|o) old_session ;;
+        stats|s) stats ;;
+        list|display|l|d) display ;;
         "")
             echo "Usage: cube {new|old|stats|list}"
             ;;
