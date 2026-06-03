@@ -77,10 +77,13 @@ comment_time() {
 	local com
 	local file=$2
 
-	read -rp "Any comments? (n for none): " com
-	[[ $com == "n" ]] && com=""
+	read -rp "Any comments? (blank for none): " com
 
-	printf '%s | %s\n' "$solve_time" "$com" >> "$file"
+	if [[ -z $com ]]; then
+		    printf '%s\n' "$solve_time" >> "$file"
+	else
+	    printf '%s | %s\n' "$solve_time" "$com" >> "$file"
+	fi
 }
 
 timer_mode() {
@@ -201,8 +204,9 @@ while IFS="|" read -r time comment || [[ -n $time ]]; do
 done < "$file"
 
 separator
-echo "Solves: $count"
-echo "Best: $best"
+
+echo "Number of Solves: $count"
+echo "Best solve: $best"
 
 if (( count == 0 )); then
 	std_error
