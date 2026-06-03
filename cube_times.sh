@@ -12,7 +12,7 @@ greet() {
 }
 
 std_error() {
-echo "Invalid input" >&2
+	echo "Invalid input" >&2
 }
 
 command -v bc >/dev/null ||
@@ -73,14 +73,14 @@ display() {
 }
 
 comment_time() {
-local solve_time=$1
-local com
-local file=$2
+	local solve_time=$1
+	local com
+	local file=$2
 
-read -rp "Any comments? (n for none): " com
-[[ $com == "n" ]] && com=""
+	read -rp "Any comments? (n for none): " com
+	[[ $com == "n" ]] && com=""
 
-printf '%s | %s\n' "$solve_time" "$com" >> "$file"
+	printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 
 timer_mode() {
@@ -119,11 +119,17 @@ while true; do
 scrambles() {
 	local moves=(U D L R F B)
         local movers=("" "'" "2")
+	local prev""
 	local i
         for ((i=0;i<20;i++)); do
+		    while true; do
+        		move=${moves[RANDOM % ${#moves[@]}]}
+		        [[ $move != "$prev" ]] && break
+		    done
 		printf "%s%s " \
             	"${moves[RANDOM % ${#moves[@]}]}" \
  	        "${movers[RANDOM % ${#movers[@]}]}"
+		prev=$move
     	done
 
         echo
@@ -131,6 +137,7 @@ scrambles() {
 
 session() {
 local file=$1
+local sol_num
 local sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
 local i
@@ -138,7 +145,7 @@ local time
 local mode
 for ((i=1; i<=sol_num; i++)); do
         while true; do
-		echo "Scramble number: #i"
+		echo "Scramble number: #$i"
 		scrambles
 		read -rp "manual or timer mode or quit (m|t|q): " mode
 		case "$mode" in
@@ -157,6 +164,8 @@ done
 }
 
 file_check() {
+local num
+local file
 while true; do
 	local num=$(read_number "Which session: ")
 	local file="session_$num"
@@ -176,6 +185,7 @@ file=$(file_check)
 local total=0
 local count=0
 local best=""
+local file
 
 while IFS="|" read -r time comment || [[ -n $time ]]; do
 	time=${time//[[:space:]]/}
@@ -224,9 +234,7 @@ main() {
         "")
             echo "Usage: cube {new|old|stats|list}"
             ;;
-        *)
-            echo "Invalid input" #std_error doesnt work here as it has >&2
-            echo "Unknown command: $1"
+        *) std_error ; echo "Unknown command: $1" >&2 ; exit 1
             ;;
     esac
 }
