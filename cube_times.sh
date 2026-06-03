@@ -65,7 +65,7 @@ display() {
         separator
         echo "Available sessions:"
         separator
-        printf '%s\n' "${sessions[@]}"
+        printf '%s\n' "${sessions[@]}" | sort -V
         separator
     else
         echo "No sessions found"
@@ -134,8 +134,11 @@ local file=$1
 local sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
 local i
+local time
+local mode
 for ((i=1; i<=sol_num; i++)); do
         while true; do
+		echo "Scramble number: #i"
 		scrambles
 		read -rp "manual or timer mode or quit (m|t|q): " mode
 		case "$mode" in
@@ -147,7 +150,7 @@ for ((i=1; i<=sol_num; i++)); do
                         comment_time "$time" "$file"
                         break ;;
 		q|Q) return ;;
-		*) std_error && echo "usage (m|t|q)" ;;
+		*) std_error ; echo "usage (m|t|q)" ;;
 		esac
         done
 done
@@ -155,7 +158,7 @@ done
 
 file_check() {
 while true; do
-	num=$(read_number "Which session: ")
+	local num=$(read_number "Which session: ")
 	local file="session_$num"
 	[[ -f "$file" ]]  && { echo "$file"; return; }
         echo "File does not exist"
@@ -170,9 +173,9 @@ session "$file"
 
 stats() {
 file=$(file_check)
-total=0
-count=0
-best=""
+local total=0
+local count=0
+local best=""
 
 while IFS="|" read -r time comment || [[ -n $time ]]; do
 	time=${time//[[:space:]]/}
@@ -222,7 +225,7 @@ main() {
             echo "Usage: cube {new|old|stats|list}"
             ;;
         *)
-            std_error
+            echo "Invalid input" #std_error doesnt work here as it has >&2
             echo "Unknown command: $1"
             ;;
     esac
