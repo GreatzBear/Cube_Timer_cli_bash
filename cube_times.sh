@@ -187,7 +187,7 @@ for ((i=1; i<=sol_num; i++)); do
             		comment_time "DNF" "$file"
             		continue ;;
     		esac
-
+		if
 		echo "Scramble number: #$i"
 		scrambles
 		read -rp "manual or timer mode or quit (m|t|q): " mode
