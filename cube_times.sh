@@ -78,12 +78,9 @@ comment_time() {
 	local file=$2
 
 	read -rp "Any comments? (blank for none): " com
+	[[ -z $com ]] && com="-"
 
-	if [[ -z $com ]]; then
-		    printf '%s\n' "$solve_time" >> "$file"
-	else
-	    printf '%s | %s\n' "$solve_time" "$com" >> "$file"
-	fi
+	printf '%s | %s\n' "$solve_time" "$com" >> "$file"
 }
 
 timer_mode() {
@@ -122,7 +119,7 @@ while true; do
 scrambles() {
 	local moves=(U D L R F B)
         local movers=("" "'" "2")
-	local prev""
+	local prev=""
 	local i
         for ((i=0;i<20;i++)); do
 		    while true; do
@@ -138,16 +135,59 @@ scrambles() {
         echo
 }
 
+inspection_time() {
+echo "Press any key to start" >&2
+read -rsn1
+local start
+start=$(date +%s.%N)
+echo "Timing... press any key to stop" >&2
+read -rsn1
+
+local end
+end=$(date +%s.%N)
+
+local elapsed
+elapsed=$(echo "$end - $start" | bc -l)
+
+if (( $(echo "$elapsed >= 15" | bc -l) )); then
+	echo "DNF"
+else
+	printf "%.2f\n" "Inspection time is: $elapsed"
+fi
+
+}
+
 session() {
 local file=$1
 local sol_num
-local sol_num=$(read_number "How many solves: ")
+sol_num=$(read_number "How many solves: ")
 (( sol_num == 0 )) && return
 local i
 local time
 local mode
+local dec
+local convert
+local inspection_result
+while true; do
+	read -rp "inspection time? (y|n)" dec
+	case "$dec" in
+		y*|Y*) convert=yes ; break ;;
+		n*|N*) convert=no ; break ;;
+		*) std_error ;;
+	esac
+done
+
 for ((i=1; i<=sol_num; i++)); do
         while true; do
+		if [[ "$convert" == "yes" ]]; then
+			inspection_result=$(inspection_time)
+
+		case "$inspection_result" in
+        		DNF)
+            		comment_time "DNF" "$file"
+            		continue ;;
+    		esac
+
 		echo "Scramble number: #$i"
 		scrambles
 		read -rp "manual or timer mode or quit (m|t|q): " mode
@@ -184,11 +224,11 @@ session "$file"
 }
 
 stats() {
+local file
 file=$(file_check)
 local total=0
 local count=0
 local best=""
-local file
 
 while IFS="|" read -r time comment || [[ -n $time ]]; do
 	time=${time//[[:space:]]/}
